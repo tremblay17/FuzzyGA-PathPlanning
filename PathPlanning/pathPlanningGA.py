@@ -1,6 +1,5 @@
 # Description: This program uses a genetic algorithm to find the shortest path between a set of waypoints
-from hmac import new
-from numpy import iinfo, random as rand
+from numpy import random as rand
 from matplotlib import pyplot as plt
 import random
 
@@ -23,6 +22,7 @@ class PathFinder:
         self.fuzzyLogic = fl.FuzzyLogic()
         self.prevFitness = 0
         self.currFitness = 0
+        self.isCoverage = False
 
         # Create the paths
         for _ in range(self.populationSize):
@@ -73,30 +73,43 @@ class PathFinder:
 
         return path
     def fitnessFunc(self, individual):
-        # Calculate the total distance of the path
-        total_distance = 0
-        for i in range(len(individual) - 1):
-            if(type(individual[i])!=tuple or type(individual[i+1])!=tuple):
-                continue
-            waypoint1 = individual[i]
-            waypoint2 = individual[i + 1]
-            distance = round((((waypoint2[0] - waypoint1[0]) ** 2 + (waypoint2[1] - waypoint1[1]) ** 2) ** 0.5), 0)
-            total_distance += distance
+        if(self.isCoverage is False):
+            # Calculate the total distance of the path
+            total_distance = 0
+            for i in range(len(individual) - 1):
+                if(type(individual[i])!=tuple or type(individual[i+1])!=tuple):
+                    continue
+                waypoint1 = individual[i]
+                waypoint2 = individual[i + 1]
+                distance = round((((waypoint2[0] - waypoint1[0]) ** 2 + (waypoint2[1] - waypoint1[1]) ** 2) ** 0.5), 0)
+                total_distance += distance
 
-        # Return the negative of the total distance (because shorter distances are better)
-        return -total_distance
+            # Return the negative of the total distance (because shorter distances are better)
+            return -total_distance
+        else:
+            # Calculate the number of unique points covered by the individual
+            unique_points = set(individual)
+
+            # The fitness is the number of unique points
+            fitness = len(unique_points)
+
+            return fitness
     def evaluate(self):
         # Iterate over the population
         fitnessArray = []
         for individual in self.population:
-            # Encode the chromosome
-            binary_string = self.encodeChromosome(individual)
+            if(self.isCoverage is False):
+                # Encode the chromosome
+                binary_string = self.encodeChromosome(individual)
 
-            # Decode the chromosome
-            decoded_path = self.decodeChromosome(binary_string)
+                # Decode the chromosome
+                decoded_path = self.decodeChromosome(binary_string)
 
-            # Calculate the fitness of the individual
-            fitness = self.fitnessFunc(decoded_path)
+                # Calculate the fitness of the individual
+                fitness = self.fitnessFunc(decoded_path)  
+            else:
+                # Calculate the fitness of the individual
+                fitness = self.fitnessFunc(individual)
 
             # Add the fitness to the individual
             individual.append(fitness)
@@ -208,9 +221,6 @@ class PathFinder:
         except AssertionError:
             print('Crossover method not implemented')
     def mutate(self, individual): #Two point swap
-        # Randomly select an individual from the population
-        #individual = random.choice(self.population)
-
         # Randomly select two indices
         index1, index2 = random.sample(range(len(individual)-1), 2)
 
@@ -222,6 +232,8 @@ class PathFinder:
         return individual
     def normalizeFitness(self, minFitness, maxFitness, fitnessVal):
         # Min-max normalization
+        if maxFitness == minFitness:
+            return 0
         return (fitnessVal - minFitness)/(maxFitness - minFitness)
 
     def run(self, callback=None):
@@ -242,9 +254,8 @@ class PathFinder:
             print('Crossover method:', self.crossoverMethod)
             print('Generation:', generation + 1)
             # Evaluate the population
-            popFit = self.evaluate()
-            self.population = sorted(self.population, key=lambda individual: self.fitnessFunc(individual), 
-                                     reverse=True)
+            popFit = self.evaluate() #[self.fitnessFunc(individual) for individual in self.population]
+            self.population = sorted(self.population, key=lambda individual: self.fitnessFunc(individual), reverse=True) #[x for _, x in sorted(zip(popFit, self.population), key=lambda pair: pair[0], reverse=True)]
             print('Population Fitness:', sum(popFit)/len(popFit))
             newPopulation = []
             # Call the defuzzify method of the fuzzy logic class
@@ -293,8 +304,8 @@ class PathFinder:
         print('Best fitness over generations:', best_fitnesses)
 
         # Print the best path
-        best_path = max(self.population, key=self.fitnessFunc)
-        print('Best path:', best_path , '\nDistance:', -self.fitnessFunc(best_path))
+        best_path = max(self.population, key=self.fitnessFunc) 
+        print('Best path:', best_path , '\nDistance:', self.fitnessFunc(best_path))
         return avg_fitnesses, best_fitnesses, all_solutions
     
     def plot(self, avgFitnesses, bestFitnesses):
