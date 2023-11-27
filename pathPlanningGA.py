@@ -1,6 +1,5 @@
 # Description: This program uses a genetic algorithm to find the shortest path between a set of waypoints
-from hmac import new
-from numpy import iinfo, random as rand
+from numpy import random as rand
 from matplotlib import pyplot as plt
 import random
 
