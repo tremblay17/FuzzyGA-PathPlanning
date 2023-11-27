@@ -87,6 +87,7 @@ class PathFinder:
             # Return the negative of the total distance (because shorter distances are better)
             return -total_distance
         else:
+            '''TODO: Fix coverage fitness not improving'''
             # Calculate the number of unique points covered by the individual
             unique_points = set(individual)
 
@@ -184,37 +185,37 @@ class PathFinder:
                             pointer += 1
                     return child
                 case 'partially_mapped':
-                    #TODO: Implement partially mapped crossover
+                    '''TODO: Implement partially mapped crossover'''
                     pass
                 case 'cycle':
-                    #TODO: Implement cycle crossover
+                    '''TODO: Implement cycle crossover'''
                     pass
                 case 'edge_recombination':
-                    #TODO: Implement edge recombination crossover
+                    '''TODO: Implement edge recombination crossover'''
                     pass
                 case 'uniform':
-                    #TODO: Implement uniform crossover
+                    '''TODO: Implement uniform crossover'''
                     pass
                 case 'linear':
-                    #TODO: Implement linear crossover
+                    '''TODO: Implement linear crossover'''
                     pass
                 case 'single_arithmetic':
-                    #TODO: Implement single arithmetic crossover
+                    '''TODO: Implement single arithmetic crossover'''
                     pass
                 case 'single_point':
-                    #TODO: Implement single point crossover
+                    '''TODO: Implement single point crossover'''
                     pass
                 case 'two_point':
-                    #TODO: Implement two point crossover
+                    '''TODO: Implement two point crossover'''
                     pass
                 case 'half_uniform':
-                    #TODO: Implement half uniform crossover
+                    '''TODO: Implement half uniform crossover'''
                     pass
                 case 'uniform_mask':
-                    #TODO: Implement uniform mask crossover
+                    '''TODO: Implement uniform mask crossover'''
                     pass
                 case 'three_parent':
-                    #TODO: Implement three parent crossover
+                    '''TODO: Implement three parent crossover'''
                     pass
                 case _:
                     raise AssertionError
@@ -269,12 +270,19 @@ class PathFinder:
             # Determine the number of elites
             num_elites = int(self.populationSize * 0.02)  # 2% of the population
 
+            # Initialize new population
             newPopulation = []
+
+            # Add the elites to the new population
+            '''TODO: Fix new population containing individuals with None values
+                Adding the elites to the new population causes the new population to contain individuals with None values
+                Initializing an empty population without adding the elites does not cause this issue'''
+            '''newPopulation.extend(self.population[:num_elites])'''
 
             # Perform selection, crossover, and mutation to fill the rest of the new population
             while len(newPopulation) < self.populationSize:
-                # if len(newPopulation) == 0:
-                #     newPopulation = self.population[:num_elites+1]
+                '''if len(newPopulation) == 0:
+                    newPopulation = self.population[:num_elites+1]'''
                 newIndividual = self.crossover()
             
                 if(rand.random() < self.mutationRate):
