@@ -8,7 +8,7 @@ import fuzzyLogic as fl
 
 
 class PathFinder:
-    def __init__(self, populationSize, generations, waypoints, crossoverRate = 0.7, mutationRate=0.001, selectionMethod='elitism', crossoverMethod = 'ordered') -> None:
+    def __init__(self, populationSize, generations, waypoints, crossoverRate = 0.7, mutationRate=0.001, selectionMethod='elitism', crossoverMethod = 'ordered', isCoverage=False) -> None:
         self.populationSize = populationSize 
         self.generations = generations 
         self.crossoverRate = crossoverRate 
@@ -22,7 +22,7 @@ class PathFinder:
         self.fuzzyLogic = fl.FuzzyLogic()
         self.prevFitness = 0
         self.currFitness = 0
-        self.isCoverage = False
+        self.isCoverage = isCoverage
 
         # Create the paths
         for _ in range(self.populationSize):
@@ -35,8 +35,6 @@ class PathFinder:
             # Add the path to the population
             self.population.append(path)
 
-    '''def binaryToDecimal(self):
-        pass'''
     def encodeChromosome(self, path):
         # Initialize the binary string
         binary_string = ''
@@ -73,27 +71,45 @@ class PathFinder:
 
         return path
     def fitnessFunc(self, individual):
-        if(self.isCoverage is False):
-            # Calculate the total distance of the path
-            total_distance = 0
-            for i in range(len(individual) - 1):
-                if(type(individual[i])!=tuple or type(individual[i+1])!=tuple):
-                    continue
-                waypoint1 = individual[i]
-                waypoint2 = individual[i + 1]
-                distance = round((((waypoint2[0] - waypoint1[0]) ** 2 + (waypoint2[1] - waypoint1[1]) ** 2) ** 0.5), 0)
-                total_distance += distance
+        try:
+            if(self.isCoverage is False):
+                # Calculate the total distance of the path
+                total_distance = 0
+                for i in range(len(individual) - 1):
+                    if(type(individual[i])!=tuple or type(individual[i+1])!=tuple):
+                        continue
+                    waypoint1 = individual[i]
+                    waypoint2 = individual[i + 1]
+                    distance = round((((waypoint2[0] - waypoint1[0]) ** 2 + (waypoint2[1] - waypoint1[1]) ** 2) ** 0.5), 0)
+                    total_distance += distance
 
-            # Return the negative of the total distance (because shorter distances are better)
-            return -total_distance
-        else:
-            # Calculate the number of unique points covered by the individual
-            unique_points = set(individual)
+                # Return the negative of the total distance (because shorter distances are better)
+                return -total_distance
+            elif(self.isCoverage is True):
+                # Calculate the total distance of the path
+                total_distance = 0
+                for i in range(len(individual) - 1):
+                    if(type(individual[i])!=tuple or type(individual[i+1])!=tuple):
+                        continue
+                    waypoint1 = individual[i]
+                    waypoint2 = individual[i + 1]
+                    distance = round((((waypoint2[0] - waypoint1[0]) ** 2 + (waypoint2[1] - waypoint1[1]) ** 2) ** 0.5), 0)
+                    total_distance += distance
 
-            # The fitness is the number of unique points
-            fitness = len(unique_points)
+                # Calculate the number of unique points covered by the individual
+                unique_points = len(set(individual))
 
-            return fitness
+                # The fitness is a weighted sum of total_distance and unique_points
+                weight_distance = 0.5  # adjust this weight as needed
+                weight_unique_points = 1  # adjust this weight as needed
+                fitness = weight_distance * -total_distance + weight_unique_points * unique_points
+
+                return fitness
+            else:
+                raise TypeError
+        except TypeError:
+            return "isCoverage must be a boolean"
+            
     def evaluate(self):
         # Iterate over the population
         fitnessArray = []
@@ -144,8 +160,8 @@ class PathFinder:
                     parent2 = max(tournament2, key=self.fitnessFunc)
                     return parent1, parent2
                 case _:
-                    raise AssertionError
-        except AssertionError: 
+                    raise RuntimeError
+        except RuntimeError: 
             print('Selection method not implemented')
     def crossover(self): 
         try:
@@ -217,8 +233,8 @@ class PathFinder:
                     #TODO: Implement three parent crossover
                     pass
                 case _:
-                    raise AssertionError
-        except AssertionError:
+                    raise RuntimeError
+        except RuntimeError:
             print('Crossover method not implemented')
     def mutate(self, individual): #Two point swap
         # Randomly select two indices
@@ -413,10 +429,11 @@ def runGA():
     mutationRate = 0.002
     crossoverMethod = 'ordered'
     selectionMethod = 'elitism'
+    isCoverage = None
     #mutationMethod = '2p swap'
 
     # Create an instance of the class
-    pathFinder = PathFinder(popSize, generations, waypoints, crossoverRate, mutationRate, selectionMethod, crossoverMethod)  
+    pathFinder = PathFinder(popSize, generations, waypoints, crossoverRate, mutationRate, selectionMethod, crossoverMethod, isCoverage)  
 
     fitnesses = pathFinder.run()
     avgFitnesses = fitnesses[0]
