@@ -108,24 +108,21 @@ class PathFinder:
             else:
                 raise TypeError
         except TypeError:
-            return "isCoverage must be a boolean"
+            print("isCoverage must be a boolean")
+            return exit()
             
     def evaluate(self):
         # Iterate over the population
         fitnessArray = []
         for individual in self.population:
-            if(self.isCoverage is False):
-                # Encode the chromosome
-                binary_string = self.encodeChromosome(individual)
+            # Encode the chromosome
+            binary_string = self.encodeChromosome(individual)
 
-                # Decode the chromosome
-                decoded_path = self.decodeChromosome(binary_string)
+            # Decode the chromosome
+            decoded_path = self.decodeChromosome(binary_string)
 
-                # Calculate the fitness of the individual
-                fitness = self.fitnessFunc(decoded_path)  
-            else:
-                # Calculate the fitness of the individual
-                fitness = self.fitnessFunc(individual)
+            # Calculate the fitness of the individual
+            fitness = self.fitnessFunc(decoded_path) 
 
             # Add the fitness to the individual
             individual.append(fitness)
@@ -163,6 +160,7 @@ class PathFinder:
                     raise RuntimeError
         except RuntimeError: 
             print('Selection method not implemented')
+            return exit()
     def crossover(self): 
         try:
             match(self.crossoverMethod):
@@ -236,6 +234,7 @@ class PathFinder:
                     raise RuntimeError
         except RuntimeError:
             print('Crossover method not implemented')
+            return exit()
     def mutate(self, individual): #Two point swap
         # Randomly select two indices
         index1, index2 = random.sample(range(len(individual)-1), 2)
@@ -395,8 +394,8 @@ def runGA():
     waypoints = []
 
     # Define the dimensions of the map
-    map_width = 200
-    map_height = 200   
+    map_width = 300
+    map_height = 300   
 
     # Define the dimensions of the area where the waypoints will be generated
     area_width = (map_width//10)//2  # Size of Plot
@@ -429,7 +428,7 @@ def runGA():
     mutationRate = 0.002
     crossoverMethod = 'ordered'
     selectionMethod = 'elitism'
-    isCoverage = None
+    isCoverage = True
     #mutationMethod = '2p swap'
 
     # Create an instance of the class
