@@ -6,4 +6,6 @@ final.blg
 final.fls
 final.out
 final.synctex.gz
-__pycache__/fuzzyLogic.cpython-310.pyc
+*.py
+./__pycache__/*
+./.vscode/*
