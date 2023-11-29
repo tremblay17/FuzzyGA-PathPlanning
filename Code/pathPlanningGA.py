@@ -350,7 +350,7 @@ class PathFinder:
         plt.show(block=False)
 
         # Save the plot to the current directory
-        plt.savefig(prefix + "_Gen"+str(gen) + '.png')
+        plt.savefig("../CodeResults/"+prefix + "_Gen"+str(gen) + '.png')
         plt.close()
 
     def drawMap(self, waypoints, bestPath, mapWidth, mapHeight, prefix, gen, isSquare=True, vertices=None):
@@ -397,7 +397,7 @@ class PathFinder:
         pygame.display.update()
 
         #Save the map to the current directory
-        name = prefix + "_Gen"+str(gen) + '_Map.png'
+        name = "../CodeResults/"+prefix + "_Gen"+str(gen) + '_Map.png'
         pygame.image.save(window, name)
         pygame.quit()
 
