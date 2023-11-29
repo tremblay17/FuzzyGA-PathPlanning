@@ -8,3 +8,4 @@ final.out
 final.synctex.gz
 *.py
 __pycache__/fuzzyLogic.cpython-310.pyc
+settings.json
