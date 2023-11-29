@@ -7,5 +7,6 @@ final.fls
 final.out
 final.synctex.gz
 *.py
+*.png
 ./__pycache__/*
 ./.vscode/*
