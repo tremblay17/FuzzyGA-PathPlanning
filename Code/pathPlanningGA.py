@@ -279,10 +279,10 @@ class PathFinder:
             # Call the defuzzify method of the fuzzy logic class
             #all_solutions.append(max(self.population, key=self.fitnessFunc))
 
-            self.prevFitness = self.normalizeFitness(min(popFit), max(popFit), self.prevFitness)
-            self.currFitness = self.normalizeFitness(min(popFit), max(popFit), self.currFitness)
-            self.mutationRate, self.crossoverRate = (self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[0], 
-                                                     self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[1])
+            # self.prevFitness = self.normalizeFitness(min(popFit), max(popFit), self.prevFitness)
+            # self.currFitness = self.normalizeFitness(min(popFit), max(popFit), self.currFitness)
+            # self.mutationRate, self.crossoverRate = (self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[0], 
+            #                                          self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[1])
 
             # Determine the number of elites
             num_elites = int(self.populationSize * 0.02)  # 2% of the population
@@ -350,7 +350,7 @@ class PathFinder:
         plt.show(block=False)
 
         # Save the plot to the current directory
-        plt.savefig("../CodeResults/"+prefix + "_Gen"+str(gen) + '.png')
+        plt.savefig("/home/folio9480m/repos/Github-Pulls/HybridSystems-AgDrones/CodeResults/"+prefix + "_GenNoFuzzy"+str(gen) + '.png')
         plt.close()
 
     def drawMap(self, waypoints, bestPath, mapWidth, mapHeight, prefix, gen, isSquare=True, vertices=None):
@@ -397,7 +397,7 @@ class PathFinder:
         pygame.display.update()
 
         #Save the map to the current directory
-        name = "../CodeResults/"+prefix + "_Gen"+str(gen) + '_Map.png'
+        name = "/home/folio9480m/repos/Github-Pulls/HybridSystems-AgDrones/CodeResults/"+prefix + "_GenNoFuzzy"+str(gen) + '_Map.png'
         pygame.image.save(window, name)
         pygame.quit()
 
@@ -470,8 +470,8 @@ def runGA(generations, prefix):
         vertex1 = (vertex1[0]-20, vertex1[1]-15)
 
     popSize = 30
-    crossoverRate = 0.7
-    mutationRate = 0.002
+    crossoverRate = 0.8
+    mutationRate = 0.01
     crossoverMethod = 'ordered'
     selectionMethod = 'elitism'
     isCoverage = True
