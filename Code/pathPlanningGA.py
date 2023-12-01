@@ -1,6 +1,7 @@
 # Description: This program uses a genetic algorithm to find the shortest path between a set of waypoints
 from multiprocessing import Pool
 from operator import ge
+import os
 from numpy import random as rand
 from matplotlib import pyplot as plt
 import random
@@ -279,10 +280,10 @@ class PathFinder:
             # Call the defuzzify method of the fuzzy logic class
             #all_solutions.append(max(self.population, key=self.fitnessFunc))
 
-            # self.prevFitness = self.normalizeFitness(min(popFit), max(popFit), self.prevFitness)
-            # self.currFitness = self.normalizeFitness(min(popFit), max(popFit), self.currFitness)
-            # self.mutationRate, self.crossoverRate = (self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[0], 
-            #                                          self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[1])
+            self.prevFitness = self.normalizeFitness(min(popFit), max(popFit), self.prevFitness)
+            self.currFitness = self.normalizeFitness(min(popFit), max(popFit), self.currFitness)
+            self.mutationRate, self.crossoverRate = (self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[0], 
+                                                     self.fuzzyLogic.defuzzify(self.prevFitness, self.currFitness)[1])
 
             # Determine the number of elites
             num_elites = int(self.populationSize * 0.02)  # 2% of the population
@@ -327,7 +328,7 @@ class PathFinder:
         print('Best path:', best_path , '\nDistance:', -self.fitnessFunc(best_path))
         return avg_fitnesses, best_fitnesses, all_solutions
     
-    def plot(self, avgFitnesses, bestFitnesses, prefix, gen):
+    def plot(self, avgFitnesses, bestFitnesses, prefix, gen, fileLocation):
         # Calculate the inverse of the best and average fitnesses
         #bestFitnesses = [-x for x in bestFitnesses]
         #avgFitnesses = [-x for x in avgFitnesses]
@@ -350,10 +351,17 @@ class PathFinder:
         plt.show(block=False)
 
         # Save the plot to the current directory
-        plt.savefig("/home/folio9480m/repos/Github-Pulls/HybridSystems-AgDrones/CodeResults/"+prefix + "_GenNoFuzzy"+str(gen) + '.png')
+        try:
+            if(not os.path.isdir(fileLocation)):
+                raise FileNotFoundError
+            plt.savefig(fileLocation+prefix + "_GenNoFuzzy"+str(gen) + '.png')
+        except FileNotFoundError:
+            print("File/folder not found")
+            fileLocation = input("We couldn't find the file/folder. Please enter the correct file/folder location: ")
+            plt.savefig(fileLocation+prefix + "_GenNoFuzzy"+str(gen) + '.png')
         plt.close()
 
-    def drawMap(self, waypoints, bestPath, mapWidth, mapHeight, prefix, gen, isSquare=True, vertices=None):
+    def drawMap(self, waypoints, bestPath, mapWidth, mapHeight, prefix, gen, fileLocation, isSquare=True, vertices=None):
         # Initialize Pygame
         pygame.init()
 
@@ -397,8 +405,16 @@ class PathFinder:
         pygame.display.update()
 
         #Save the map to the current directory
-        name = "/home/folio9480m/repos/Github-Pulls/HybridSystems-AgDrones/CodeResults/"+prefix + "_GenNoFuzzy"+str(gen) + '_Map.png'
-        pygame.image.save(window, name)
+        name = fileLocation+prefix + "_GenNoFuzzy"+str(gen) + '_Map.png'
+        try:
+            if(not os.path.isdir(fileLocation)):
+                raise FileNotFoundError
+            pygame.image.save(window, name)
+        except FileNotFoundError:
+            print("File/folder not found")
+            fileLocation = input("We couldn't find the file/folder. Please enter the correct file/folder location: ")
+            name = fileLocation+prefix + "_GenNoFuzzy"+str(gen) + '_Map.png'
+            pygame.image.save(window, name)
         pygame.quit()
 
         # # Wait for the user to close the window
@@ -436,6 +452,7 @@ def runGA(generations, prefix):
 
     # Generate a calculated # of random waypoints
     for _ in range(int(round(area, 0))):
+        print(_)
         if isSquare:
             # Generate a random x and y coordinate
             x = random.randint(0, area_width)*10  # X coordinate * size
@@ -456,6 +473,25 @@ def runGA(generations, prefix):
         
         if(x,y) in waypoints:
             continue
+            while((x,y) in waypoints):
+                if isSquare:
+                    # Generate a random x and y coordinate
+                    x = random.randint(0, area_width)*10  # X coordinate * size
+                    y = random.randint(0, area_height)*10  # Y coordinate * size
+                else:
+                    # Generate random barycentric coordinates
+                    a = random.random()
+                    b = random.random() * (1 - a)
+                    c = 1 - a - b
+
+                    # Calculate the x and y coordinates of the waypoint
+                    x = a * vertex1[0] + b * vertex2[0] + c * vertex3[0]
+                    y = a * vertex1[1] + b * vertex2[1] + c * vertex3[1]
+
+                # Adjust the coordinates to center the waypoints in the map
+                x += offset_x
+                y += offset_y
+
 
         
 
@@ -469,7 +505,7 @@ def runGA(generations, prefix):
         vertex1 = min(waypoints, key=lambda x: x[0])
         vertex1 = (vertex1[0]-20, vertex1[1]-15)
 
-    popSize = 30
+    popSize = 100
     crossoverRate = 0.8
     mutationRate = 0.01
     crossoverMethod = 'ordered'
@@ -485,12 +521,12 @@ def runGA(generations, prefix):
     bestFitnesses = fitnesses[1]
     allSolutions = fitnesses[2]
 
-    print("Big-O:", popSize*generations*len(waypoints))
+    fileLocation = "~/repos/Github-Pulls/HybridSystems-AgDrones/CodeResults/"
 
     # Plot the average and best fitness over generations
-    pathFinder.plot(avgFitnesses, bestFitnesses, prefix, generations)
+    pathFinder.plot(avgFitnesses, bestFitnesses, prefix, generations, fileLocation)
     # Draw the map
-    pathFinder.drawMap(waypoints, pathFinder.best_path, map_width, map_height, prefix, generations, isSquare, [vertex1, vertex2, vertex3])
+    pathFinder.drawMap(waypoints, pathFinder.best_path, map_width, map_height, prefix, generations, fileLocation, isSquare, [vertex1, vertex2, vertex3])
 
 
 for i in range(len(generations)):
