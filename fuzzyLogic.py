@@ -77,5 +77,6 @@ def run():
     fsets.fuzzyRules()
     fsets.view()
 
-fsets = FuzzyLogic()
-print(fsets.defuzzify(0.2, 0.4))
+# fsets = FuzzyLogic()
+# print(fsets.defuzzify(0.2, 0.4))
+run()
