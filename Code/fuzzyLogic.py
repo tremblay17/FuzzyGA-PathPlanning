@@ -1,6 +1,4 @@
 from matplotlib import pyplot as plt
-import skfuzzy as skf
-import pylab as lab
 from skfuzzy import control as ctrl
 import numpy as np
 
@@ -15,8 +13,8 @@ class FuzzyLogic:
         # Define the universe of discourse
         self.prevFitness = ctrl.Antecedent(np.arange(0, 1, 0.01), 'prevFitness')
         self.currFitness = ctrl.Antecedent(np.arange(0, 1, 0.01), 'currFitness')
-        self.mutationRate = ctrl.Consequent(np.arange(0, 1, 0.01), 'mutationRate')
-        self.crossoverRate = ctrl.Consequent(np.arange(0, 1, 0.01), 'crossoverRate')
+        self.mutationRate = ctrl.Consequent(np.arange(0, 1, 0.001), 'mutationRate')
+        self.crossoverRate = ctrl.Consequent(np.arange(0, 1, 0.1), 'crossoverRate')
 
         # Define the membership functions
         names = ['low', 'medium', 'high']
@@ -71,12 +69,9 @@ class FuzzyLogic:
         self.crossoverRate.view()
 
         plt.show()
-def run():
+
+def testRun():
     fsets = FuzzyLogic()
     fsets.fuzzySets()
     fsets.fuzzyRules()
     fsets.view()
-
-# fsets = FuzzyLogic()
-# print(fsets.defuzzify(0.2, 0.4))
-run()

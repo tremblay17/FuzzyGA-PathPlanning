@@ -1,1 +1,12 @@
-__pycache__/fuzzyLogic.cpython-310.pyc
+final.aux
+final.bbl
+final.fdb_latexmk
+final.log
+final.blg
+final.fls
+final.out
+final.synctex.gz
+*.py
+*.png
+./__pycache__/*
+./.vscode/*
